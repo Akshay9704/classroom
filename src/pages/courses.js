@@ -24,7 +24,7 @@ const Courses = () => {
   };
 
   const handleRoute = (courseId) => {
-    navigate('/course-details', { state: courseId });
+    navigate(`/course-details/${courseId}`, { state: courseId });
   };
 
   return (
