@@ -37,7 +37,7 @@ const Courses = () => {
         <input onChange={handleSearch} type='text' placeholder='Search for courses' className='border border-gray-300 rounded-lg py-2 px-4 w-1/2 bg-gray-100 outline-none' />
       </div>
       <div>
-        <div className='grid grid-cols-3 gap-4 my-5 mx-5'>
+        <div className='grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 my-5 mx-5'>
           {filteredCourses.map((course) => (
             <div onClick={() => handleRoute(course.id)} key={course.id}>
               <Card thumbnail={course.thumbnail} title={course.name} description={course.description} />

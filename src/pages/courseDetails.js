@@ -48,7 +48,7 @@ const CourseDetails = () => {
     try {
       const enrolledCourseData = { ...course };
       const enrolledCourseRef = await addDoc(collection(db, "enrolled"), enrolledCourseData);
-      dispatch(addToDash({ id: enrolledCourseRef.id, ...enrolledCourseData, completed: 0 }));
+      dispatch(addToDash({ id: enrolledCourseRef.id, ...enrolledCourseData}));
       toast.success('Enrolled in the course successfully!');
       setDisable(true);
       fetchEnrolledData();
@@ -61,7 +61,7 @@ const CourseDetails = () => {
   useEffect(() => {
     getCourseData();
     fetchEnrolledData();
-  }, [course, enrollCourse])
+  }, [course, enrollCourse, enrolledData])
 
   return (
     <>
@@ -108,7 +108,7 @@ const CourseDetails = () => {
                     className={`w-full px-4 py-3 text-center font-bold text-white bg-gray-500 ${disable ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-800 hover:text-gray-100'
                       } rounded-xl`}
                   >
-                    {disable ? 'Course Enrolled' : 'Enroll in this course'}
+                    {disable ? 'Already Enrolled in this course' : 'Enroll in this course'}
                   </button>
                 </div>
               </div>

@@ -9,9 +9,6 @@ export const dashSlice = createSlice({
         addToDash(state, action) {
             state.push(action.payload)
         },
-        deleteFromDash(state, action) {
-            return state.filter(item => item.id !== action.payload.id);
-        },
     },
 })
 
