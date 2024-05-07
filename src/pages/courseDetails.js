@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useContext } from 'react'
-import { useParams, useNavigate } from "react-router";
-import { doc, getDoc, addDoc, collection } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react'
+import Header from "../components/header.js"
+import { useParams } from "react-router";
+import { doc, getDoc, addDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/firestore';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToDash } from '../redux/dashSlice.jsx';
@@ -10,14 +11,12 @@ const CourseDetails = () => {
   const [course, setCourse] = useState("");
   const [loading, setLoading] = useState(false);
   const [disable, setDisable] = useState(false);
-
-  const navigate = useNavigate();
+  const [enrolledData, setEnrolledData] = useState([]);
 
   const dispatch = useDispatch();
   const enrollCourse = useSelector(state => state.dashboard);
 
   const { id } = useParams();
-  console.log(id);
 
   const getCourseData = async () => {
     setLoading(true)
@@ -31,6 +30,20 @@ const CourseDetails = () => {
     }
   }
 
+  const fetchEnrolledData = async () => {
+    try {
+      const enrolledDataSnapshot = await getDocs(collection(db, "enrolled"));
+      const enrolledDataArray = enrolledDataSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setEnrolledData(enrolledDataArray);
+      const isEnrolled = enrolledDataArray.some(enrolledCourse => enrolledCourse.name === course.name);
+      if (isEnrolled) {
+        setDisable(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const handleEnroll = async () => {
     try {
       const enrolledCourseData = { ...course };
@@ -38,19 +51,22 @@ const CourseDetails = () => {
       dispatch(addToDash({ id: enrolledCourseRef.id, ...enrolledCourseData, completed: 0 }));
       toast.success('Enrolled in the course successfully!');
       setDisable(true);
-      navigate('/dashboard');
+      fetchEnrolledData();
     } catch (error) {
       console.log(error);
     }
   }
+  
 
   useEffect(() => {
-    getCourseData()
-  }, [])
+    getCourseData();
+    fetchEnrolledData();
+  }, [course, enrollCourse])
 
   return (
     <>
       <Toaster />
+      <Header />
       <section className="mt-20 lg:py-16 font-poppins">
         <div className="max-w-6xl px-4 mx-auto">
           <div className="flex flex-wrap mb-24 -mx-4">
@@ -88,11 +104,11 @@ const CourseDetails = () => {
                 <div className="flex flex-wrap items-center mb-6">
                   <button
                     onClick={handleEnroll}
-                    disabled={disable || enrollCourse.some(enrolledCourse => enrolledCourse.id === id)} // Disable the button if the course is already enrolled
-                    className={`w-full px-4 py-3 text-center font-bold text-white bg-gray-500 ${(disable || enrollCourse.some(enrolledCourse => enrolledCourse.id === id)) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-800 hover:text-gray-100'
+                    disabled={disable}
+                    className={`w-full px-4 py-3 text-center font-bold text-white bg-gray-500 ${disable ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-800 hover:text-gray-100'
                       } rounded-xl`}
                   >
-                    {disable || enrollCourse.some(enrolledCourse => enrolledCourse.id === id) ? 'Course Enrolled' : 'Enroll in this course'}
+                    {disable ? 'Course Enrolled' : 'Enroll in this course'}
                   </button>
                 </div>
               </div>
